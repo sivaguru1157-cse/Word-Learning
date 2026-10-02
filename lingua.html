@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LexiMorph- Language Learning App</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    :root {
+        --primary: #5b5bf7;
+        --secondary: #7c3aed;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --bg: #f4f6fb;
+        --card: #ffffff;
+        --text: #1f2937;
+        --light-text: #6b7280;
+    }
+
+    body.dark {
+        --bg: #111827;
+        --card: #1f2937;
+        --text: #f9fafb;
+        --light-text: #9ca3af;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        transition: 0.3s;
+    }
+
+    /* HEADER */
+
+    header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 15px 5%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .logo {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .xp-box,
+    .streak-box {
+        background: rgba(255,255,255,0.18);
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    .dark-btn {
+        background: white;
+        color: #333;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    /* MAIN */
+
+    main {
+        max-width: 1100px;
+        margin: auto;
+        padding: 30px 20px 100px;
+    }
+
+    .page {
+        display: none;
+        animation: fade 0.3s ease;
+    }
+
+    .page.active {
+        display: block;
+    }
+
+    @keyframes fade {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    h1 {
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        color: var(--light-text);
+        margin-bottom: 25px;
+    }
+
+    /* STATS */
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: var(--card);
+        padding: 25px;
+        border-radius: 18px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .stat-card h2 {
+        font-size: 30px;
+        color: var(--primary);
+    }
+
+    .stat-card p {
+        color: var(--light-text);
+        margin-top: 8px;
+    }
+
+    /* LANGUAGE CARDS */
+
+    .language-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+    }
+
+    .language-card {
+        background: var(--card);
+        padding: 25px;
+        border-radius: 18px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .language-card:hover {
+        transform: translateY(-8px);
+    }
+
+    .language-card.selected {
+        border: 3px solid var(--primary);
+    }
+
+    .flag {
+        font-size: 45px;
+        margin-bottom: 10px;
+    }
+
+    /* LESSON */
+
+    .lesson-container {
+        max-width: 700px;
+        margin: auto;
+    }
+
+    .progress-box {
+        margin-bottom: 25px;
+    }
+
+    .progress-bar-bg {
+        width: 100%;
+        height: 15px;
+        background: #d1d5db;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--success), #16a34a);
+        transition: 0.4s;
+    }
+
+    .flashcard {
+        background: var(--card);
+        padding: 50px 30px;
+        border-radius: 25px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .language-label {
+        color: var(--primary);
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .word {
+        font-size: 50px;
+        margin: 30px 0 15px;
+    }
+
+    .meaning {
+        font-size: 22px;
+        min-height: 35px;
+        color: var(--light-text);
+    }
+
+    .button-group {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    button {
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        transform: scale(1.04);
+    }
+
+    .primary-btn {
+        background: var(--primary);
+        color: white;
+    }
+
+    .secondary-btn {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    body.dark .secondary-btn {
+        background: #374151;
+        color: white;
+    }
+
+    .success-btn {
+        background: var(--success);
+        color: white;
+    }
+
+    /* QUIZ */
+
+    .quiz-card {
+        max-width: 750px;
+        margin: auto;
+        background: var(--card);
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .question {
+        font-size: 24px;
+        margin: 25px 0;
+    }
+
+    .options {
+        display: grid;
+        gap: 12px;
+    }
+
+    .option {
+        background: var(--bg);
+        color: var(--text);
+        border: 2px solid transparent;
+        padding: 15px;
+        text-align: left;
+    }
+
+    .option:hover {
+        border-color: var(--primary);
+    }
+
+    .correct {
+        background: var(--success) !important;
+        color: white !important;
+    }
+
+    .wrong {
+        background: var(--danger) !important;
+        color: white !important;
+    }
+
+    .quiz-result {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    /* PROFILE */
+
+    .profile-card {
+        max-width: 600px;
+        margin: auto;
+        background: var(--card);
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .profile-icon {
+        font-size: 70px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .profile-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* BOTTOM NAV */
+
+    nav {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: var(--card);
+        display: flex;
+        justify-content: space-around;
+        padding: 12px 5px;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    }
+
+    .nav-btn {
+        background: transparent;
+        color: var(--light-text);
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .nav-btn.active-nav {
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    .level-card {
+        background: var(--card);
+        padding: 20px;
+        border-radius: 15px;
+        margin-top: 20px;
+    }
+
+    .level {
+        margin: 12px 0;
+        padding: 15px;
+        background: var(--bg);
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    @media(max-width: 700px) {
+
+        .stats {
+            grid-template-columns: 1fr;
+        }
+
+        .header-right {
+            gap: 5px;
+        }
+
+        .xp-box,
+        .streak-box {
+            font-size: 11px;
+            padding: 7px;
+        }
+
+        .word {
+            font-size: 38px;
+        }
+
+        header {
+            padding: 12px;
+        }
+
+        .logo {
+            font-size: 19px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">🌍 LinguaMaster</div>
+
+    <div class="header-right">
+        <div class="xp-box">
+            ⭐ XP: <span id="xp">0</span>
+        </div>
+
+        <div class="streak-box">
+            🔥 <span id="streak">1</span> Day
+        </div>
+
+        <button class="dark-btn" onclick="toggleDarkMode()">
+            🌙
+        </button>
+    </div>
+</header>
+
+<main>
+
+    <!-- HOME PAGE -->
+
+    <section id="home" class="page active">
+
+        <h1>Welcome back! 👋</h1>
+        <p class="subtitle">
+            Learn, practice and improve your language skills every day.
+        </p>
+
+        <div class="stats">
+
+            <div class="stat-card">
+                <h2 id="homeXP">0</h2>
+                <p>Total XP</p>
+            </div>
+
+            <div class="stat-card">
+                <h2 id="completedWords">0</h2>
+                <p>Words Learned</p>
+            </div>
+
+            <div class="stat-card">
+                <h2 id="quizScore">0</h2>
+                <p>Quiz Score</p>
+            </div>
+
+        </div>
+
+        <h2>Choose Your Language</h2>
+
+        <br>
+
+        <div class="language-grid">
+
+            <div class="language-card selected"
+                 onclick="selectLanguage('spanish', this)">
+
+                <div class="flag">🇪🇸</div>
+                <h3>Spanish</h3>
+                <p>Learn Spanish basics</p>
+
+            </div>
+
+            <div class="language-card"
+                 onclick="selectLanguage('french', this)">
+
+                <div class="flag">🇫🇷</div>
+                <h3>French</h3>
+                <p>Learn French basics</p>
+
+            </div>
+
+            <div class="language-card"
+                 onclick="selectLanguage('tamil', this)">
+
+                <div class="flag">🇮🇳</div>
+                <h3>Tamil</h3>
+                <p>Learn Tamil basics</p>
+
+            </div>
+
+            <div class="language-card"
+                 onclick="selectLanguage('japanese', this)">
+
+                <div class="flag">🇯🇵</div>
+                <h3>Japanese</h3>
+                <p>Learn Japanese basics</p>
+
+            </div>
+
+        </div>
+
+        <br><br>
+
+        <button class="primary-btn"
+                onclick="showPage('lesson')">
+            Start Learning 🚀
+        </button>
+
+    </section>
+
+
+    <!-- LESSON PAGE -->
+
+    <section id="lesson" class="page">
+
+        <div class="lesson-container">
+
+            <h1>📚 Vocabulary Lesson</h1>
+
+            <p class="subtitle">
+                Learn one word at a time.
+            </p>
+
+            <div class="progress-box">
+
+                <p>
+                    Progress:
+                    <span id="progressText">1 / 5</span>
+                </p>
+
+                <br>
+
+                <div class="progress-bar-bg">
+                    <div class="progress-bar"
+                         id="progressBar">
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="flashcard">
+
+                <p class="language-label"
+                   id="languageLabel">
+                    SPANISH
+                </p>
+
+                <h1 class="word"
+                    id="word">
+                    Hola
+                </h1>
+
+                <p class="meaning"
+                   id="meaning">
+                    Click "Show Meaning"
+                </p>
+
+                <div class="button-group">
+
+                    <button class="secondary-btn"
+                            onclick="speakWord()">
+                        🔊 Listen
+                    </button>
+
+                    <button class="primary-btn"
+                            onclick="showMeaning()">
+                        👁 Show Meaning
+                    </button>
+
+                </div>
+
+
+                <div class="button-group">
+
+                    <button class="secondary-btn"
+                            onclick="previousWord()">
+                        ⬅ Previous
+                    </button>
+
+                    <button class="success-btn"
+                            onclick="markLearned()">
+                        ✓ Learned
+                    </button>
+
+                    <button class="primary-btn"
+                            onclick="nextWord()">
+                        Next ➡
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- QUIZ PAGE -->
+
+    <section id="quiz" class="page">
+
+        <h1>🧠 Quick Quiz</h1>
+
+        <p class="subtitle">
+            Test what you have learned!
+        </p>
+
+        <div class="quiz-card">
+
+            <p class="language-label"
+               id="quizLanguage">
+                SPANISH
+            </p>
+
+            <h2 class="question"
+                id="question">
+            </h2>
+
+            <div class="options"
+                 id="options">
+            </div>
+
+            <p class="quiz-result"
+               id="quizResult">
+            </p>
+
+            <div class="button-group">
+
+                <button class="primary-btn"
+                        onclick="newQuizQuestion()">
+                    Next Question ➡
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- LEVEL PAGE -->
+
+    <section id="levels" class="page">
+
+        <h1>🏆 Your Levels</h1>
+
+        <p class="subtitle">
+            Keep learning to unlock new levels.
+        </p>
+
+        <div class="level-card">
+
+            <div class="level">
+                <span>🥉 Beginner</span>
+                <span id="beginnerStatus">Unlocked</span>
+            </div>
+
+            <div class="level">
+                <span>🥈 Intermediate</span>
+                <span id="intermediateStatus">🔒 Locked</span>
+            </div>
+
+            <div class="level">
+                <span>🥇 Advanced</span>
+                <span id="advancedStatus">🔒 Locked</span>
+            </div>
+
+            <div class="level">
+                <span>👑 Master</span>
+                <span id="masterStatus">🔒 Locked</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- PROFILE PAGE -->
+
+    <section id="profile" class="page">
+
+        <h1>👤 My Profile</h1>
+
+        <br>
+
+        <div class="profile-card">
+
+            <div class="profile-icon">🧑‍🎓</div>
+
+            <div class="profile-row">
+                <span>Selected Language</span>
+                <strong id="profileLanguage">
+                    Spanish
+                </strong>
+            </div>
+
+            <div class="profile-row">
+                <span>Total XP</span>
+                <strong id="profileXP">0</strong>
+            </div>
+
+            <div class="profile-row">
+                <span>Words Learned</span>
+                <strong id="profileWords">0</strong>
+            </div>
+
+            <div class="profile-row">
+                <span>Quiz Score</span>
+                <strong id="profileQuiz">0</strong>
+            </div>
+
+            <div class="profile-row">
+                <span>Daily Streak</span>
+                <strong id="profileStreak">1 Day 🔥</strong>
+            </div>
+
+            <br>
+
+            <button class="secondary-btn"
+                    onclick="resetProgress()">
+                Reset Progress
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- BOTTOM NAVIGATION -->
+
+<nav>
+
+    <button class="nav-btn active-nav"
+            onclick="showPage('home', this)">
+        🏠<br>Home
+    </button>
+
+    <button class="nav-btn"
+            onclick="showPage('lesson', this)">
+        📚<br>Learn
+    </button>
+
+    <button class="nav-btn"
+            onclick="showPage('quiz', this)">
+        🧠<br>Quiz
+    </button>
+
+    <button class="nav-btn"
+            onclick="showPage('levels', this)">
+        🏆<br>Levels
+    </button>
+
+    <button class="nav-btn"
+            onclick="showPage('profile', this)">
+        👤<br>Profile
+    </button>
+
+</nav>
+
+
+<script>
+
+/* ================================
+   LANGUAGE DATA
+================================ */
+
+const languages = {
+
+    spanish: [
+        { word: "Hola", meaning: "Hello" },
+        { word: "Gracias", meaning: "Thank You" },
+        { word: "Adiós", meaning: "Goodbye" },
+        { word: "Amigo", meaning: "Friend" },
+        { word: "Agua", meaning: "Water" }
+    ],
+
+    french: [
+        { word: "Bonjour", meaning: "Hello" },
+        { word: "Merci", meaning: "Thank You" },
+        { word: "Au revoir", meaning: "Goodbye" },
+        { word: "Ami", meaning: "Friend" },
+        { word: "Eau", meaning: "Water" }
+    ],
+
+    tamil: [
+        { word: "வணக்கம்", meaning: "Hello" },
+        { word: "நன்றி", meaning: "Thank You" },
+        { word: "நண்பன்", meaning: "Friend" },
+        { word: "தண்ணீர்", meaning: "Water" },
+        { word: "ஆம்", meaning: "Yes" }
+    ],
+
+    japanese: [
+        { word: "こんにちは", meaning: "Hello" },
+        { word: "ありがとう", meaning: "Thank You" },
+        { word: "さようなら", meaning: "Goodbye" },
+        { word: "友達", meaning: "Friend" },
+        { word: "水", meaning: "Water" }
+    ]
+
+};
+
+
+/* ================================
+   APP VARIABLES
+================================ */
+
+let currentLanguage =
+    localStorage.getItem("language") || "spanish";
+
+let currentIndex =
+    Number(localStorage.getItem("currentIndex")) || 0;
+
+let xp =
+    Number(localStorage.getItem("xp")) || 0;
+
+let learnedWords =
+    Number(localStorage.getItem("learnedWords")) || 0;
+
+let quizScore =
+    Number(localStorage.getItem("quizScore")) || 0;
+
+let streak =
+    Number(localStorage.getItem("streak")) || 1;
+
+let answered = false;
+
+
+/* ================================
+   SAVE DATA
+================================ */
+
+function saveData() {
+
+    localStorage.setItem(
+        "language",
+        currentLanguage
+    );
+
+    localStorage.setItem(
+        "currentIndex",
+        currentIndex
+    );
+
+    localStorage.setItem(
+        "xp",
+        xp
+    );
+
+    localStorage.setItem(
+        "learnedWords",
+        learnedWords
+    );
+
+    localStorage.setItem(
+        "quizScore",
+        quizScore
+    );
+
+    localStorage.setItem(
+        "streak",
+        streak
+    );
+
+}
+
+
+/* ================================
+   PAGE NAVIGATION
+================================ */
+
+function showPage(pageId, button) {
+
+    document.querySelectorAll(".page")
+        .forEach(page => {
+
+            page.classList.remove("active");
+
+        });
+
+    document.getElementById(pageId)
+        .classList.add("active");
+
+
+    if (button) {
+
+        document.querySelectorAll(".nav-btn")
+            .forEach(btn => {
+
+                btn.classList.remove("active-nav");
+
+            });
+
+        button.classList.add("active-nav");
+
+    }
+
+
+    updateProfile();
+    updateLevels();
+
+    if (pageId === "quiz") {
+        newQuizQuestion();
+    }
+
+}
+
+
+/* ================================
+   SELECT LANGUAGE
+================================ */
+
+function selectLanguage(language, element) {
+
+    currentLanguage = language;
+
+    currentIndex = 0;
+
+    document.querySelectorAll(".language-card")
+        .forEach(card => {
+
+            card.classList.remove("selected");
+
+        });
+
+    element.classList.add("selected");
+
+    updateLesson();
+
+    updateProfile();
+
+    saveData();
+
+}
+
+
+/* ================================
+   UPDATE LESSON
+================================ */
+
+function updateLesson() {
+
+    const words =
+        languages[currentLanguage];
+
+    const current =
+        words[currentIndex];
+
+    document.getElementById("languageLabel")
+        .innerText =
+        currentLanguage.toUpperCase();
+
+    document.getElementById("word")
+        .innerText =
+        current.word;
+
+    document.getElementById("meaning")
+        .innerText =
+        'Click "Show Meaning"';
+
+    document.getElementById("progressText")
+        .innerText =
+        (currentIndex + 1) +
+        " / " +
+        words.length;
+
+
+    const progress =
+        ((currentIndex + 1) /
+        words.length) * 100;
+
+    document.getElementById("progressBar")
+        .style.width =
+        progress + "%";
+
+}
+
+
+/* ================================
+   SHOW MEANING
+================================ */
+
+function showMeaning() {
+
+    const current =
+        languages[currentLanguage][currentIndex];
+
+    document.getElementById("meaning")
+        .innerText =
+        current.meaning;
+
+}
+
+
+/* ================================
+   NEXT WORD
+================================ */
+
+function nextWord() {
+
+    const words =
+        languages[currentLanguage];
+
+    currentIndex++;
+
+    if (currentIndex >= words.length) {
+
+        currentIndex = 0;
+
+    }
+
+    updateLesson();
+
+    saveData();
+
+}
+
+
+/* ================================
+   PREVIOUS WORD
+================================ */
+
+function previousWord() {
+
+    const words =
+        languages[currentLanguage];
+
+    currentIndex--;
+
+    if (currentIndex < 0) {
+
+        currentIndex =
+            words.length - 1;
+
+    }
+
+    updateLesson();
+
+    saveData();
+
+}
+
+
+/* ================================
+   MARK WORD AS LEARNED
+================================ */
+
+function markLearned() {
+
+    learnedWords++;
+
+    xp += 10;
+
+    alert("🎉 Great job! +10 XP");
+
+    updateAllStats();
+
+    saveData();
+
+}
+
+
+/* ================================
+   SPEAK WORD
+================================ */
+
+function speakWord() {
+
+    const word =
+        languages[currentLanguage][currentIndex].word;
+
+    const speech =
+        new SpeechSynthesisUtterance(word);
+
+    if (currentLanguage === "spanish") {
+        speech.lang = "es-ES";
+    }
+
+    else if (currentLanguage === "french") {
+        speech.lang = "fr-FR";
+    }
+
+    else if (currentLanguage === "tamil") {
+        speech.lang = "ta-IN";
+    }
+
+    else if (currentLanguage === "japanese") {
+        speech.lang = "ja-JP";
+    }
+
+    speechSynthesis.speak(speech);
+
+}
+
+
+/* ================================
+   QUIZ
+================================ */
+
+function newQuizQuestion() {
+
+    answered = false;
+
+    const words =
+        languages[currentLanguage];
+
+    const randomIndex =
+        Math.floor(Math.random() * words.length);
+
+    const current =
+        words[randomIndex];
+
+    document.getElementById("quizLanguage")
+        .innerText =
+        currentLanguage.toUpperCase();
+
+    document.getElementById("question")
+        .innerText =
+        'What is the meaning of "' +
+        current.word +
+        '"?';
+
+
+    let answers =
+        words.map(item => item.meaning);
+
+
+    answers.sort(() =>
+        Math.random() - 0.5
+    );
+
+
+    const options =
+        document.getElementById("options");
+
+    options.innerHTML = "";
+
+
+    answers.forEach(answer => {
+
+        const button =
+            document.createElement("button");
+
+        button.className = "option";
+
+        button.innerText = answer;
+
+        button.onclick = function() {
+
+            checkAnswer(
+                answer,
+                current.meaning,
+                button
+            );
+
+        };
+
+        options.appendChild(button);
+
+    });
+
+
+    document.getElementById("quizResult")
+        .innerText = "";
+
+}
+
+
+/* ================================
+   CHECK QUIZ ANSWER
+================================ */
+
+function checkAnswer(
+    answer,
+    correctAnswer,
+    button
+) {
+
+    if (answered) return;
+
+    answered = true;
+
+
+    if (answer === correctAnswer) {
+
+        button.classList.add("correct");
+
+        document.getElementById("quizResult")
+            .innerText =
+            "🎉 Correct! +20 XP";
+
+        xp += 20;
+
+        quizScore++;
+
+    }
+
+    else {
+
+        button.classList.add("wrong");
+
+        document.getElementById("quizResult")
+            .innerText =
+            "❌ Wrong! The correct answer is: " +
+            correctAnswer;
+
+    }
+
+
+    updateAllStats();
+
+    saveData();
+
+}
+
+
+/* ================================
+   UPDATE STATS
+================================ */
+
+function updateAllStats() {
+
+    document.getElementById("xp")
+        .innerText = xp;
+
+    document.getElementById("streak")
+        .innerText = streak;
+
+    document.getElementById("homeXP")
+        .innerText = xp;
+
+    document.getElementById("completedWords")
+        .innerText = learnedWords;
+
+    document.getElementById("quizScore")
+        .innerText = quizScore;
+
+    updateProfile();
+
+    updateLevels();
+
+}
+
+
+/* ================================
+   UPDATE PROFILE
+================================ */
+
+function updateProfile() {
+
+    const languageName =
+        currentLanguage.charAt(0).toUpperCase() +
+        currentLanguage.slice(1);
+
+    document.getElementById("profileLanguage")
+        .innerText =
+        languageName;
+
+    document.getElementById("profileXP")
+        .innerText =
+        xp;
+
+    document.getElementById("profileWords")
+        .innerText =
+        learnedWords;
+
+    document.getElementById("profileQuiz")
+        .innerText =
+        quizScore;
+
+    document.getElementById("profileStreak")
+        .innerText =
+        streak + " Day 🔥";
+
+}
+
+
+/* ================================
+   LEVEL SYSTEM
+================================ */
+
+function updateLevels() {
+
+    if (xp >= 50) {
+
+        document.getElementById(
+            "intermediateStatus"
+        ).innerText = "Unlocked 🔓";
+
+    }
+
+    if (xp >= 150) {
+
+        document.getElementById(
+            "advancedStatus"
+        ).innerText = "Unlocked 🔓";
+
+    }
+
+    if (xp >= 300) {
+
+        document.getElementById(
+            "masterStatus"
+        ).innerText = "Unlocked 👑";
+
+    }
+
+}
+
+
+/* ================================
+   DARK MODE
+================================ */
+
+function toggleDarkMode() {
+
+    document.body.classList.toggle("dark");
+
+    localStorage.setItem(
+        "darkMode",
+        document.body.classList.contains("dark")
+    );
+
+}
+
+
+/* ================================
+   LOAD DARK MODE
+================================ */
+
+if (
+    localStorage.getItem("darkMode") === "true"
+) {
+
+    document.body.classList.add("dark");
+
+}
+
+
+/* ================================
+   RESET PROGRESS
+================================ */
+
+function resetProgress() {
+
+    const confirmReset =
+        confirm(
+            "Are you sure you want to reset all progress?"
+        );
+
+    if (!confirmReset) return;
+
+    xp = 0;
+
+    learnedWords = 0;
+
+    quizScore = 0;
+
+    streak = 1;
+
+    currentIndex = 0;
+
+    localStorage.clear();
+
+    updateLesson();
+
+    updateAllStats();
+
+    alert("Progress has been reset!");
+
+}
+
+
+/* ================================
+   START APP
+================================ */
+
+updateLesson();
+
+updateAllStats();
+
+</script>
+
+</body>
+</html>
